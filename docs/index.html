@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE LIFF 發票辨識 — 安裝引導</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f8f9fb;--surface:#fff;--border:#e2e5ea;
+    --text:#1a1d23;--text-2:#5a5f6b;--text-3:#9aa0ab;
+    --accent:#06c755;--accent-soft:#e8f9ef;--accent-dark:#05a848;
+    --danger:#ef4444;--danger-soft:#fef2f2;
+    --radius:14px;--radius-sm:10px;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+    --shadow-md:0 4px 12px rgba(0,0,0,.08);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
+  }
+  body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-dark);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* Layout */
+  .wrapper{max-width:640px;margin:0 auto;padding:24px 20px 80px}
+
+  /* Header */
+  .header{text-align:center;padding:40px 0 32px}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+  .header p{color:var(--text-2);font-size:14px}
+  .badge{display:inline-block;background:var(--accent-soft);color:var(--accent-dark);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:12px;letter-spacing:.3px}
+
+  /* Progress */
+  .progress{display:flex;gap:6px;margin-bottom:32px}
+  .progress-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
+  .progress-dot.active{background:var(--accent)}
+  .progress-dot.done{background:var(--accent);opacity:.5}
+  .step-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);margin-bottom:8px}
+
+  /* Card */
+  .card{background:var(--surface);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:16px}
+  .card h2{font-size:18px;font-weight:700;margin-bottom:4px}
+  .card h3{font-size:15px;font-weight:600;margin:20px 0 8px;color:var(--text)}
+  .card p,.card li{font-size:14px;color:var(--text-2);line-height:1.7}
+  .card ul,.card ol{padding-left:20px;margin:8px 0}
+  .card li{margin-bottom:4px}
+  .card li strong{color:var(--text)}
+
+  /* Screenshot placeholder */
+  .screenshot{position:relative;background:#f0f2f5;border:2px dashed var(--border);border-radius:var(--radius-sm);padding:48px 24px;text-align:center;margin:16px 0;overflow:hidden}
+  .screenshot img{max-width:100%;border-radius:var(--radius-sm);display:block;margin:0 auto}
+  .screenshot.placeholder::after{content:"";display:block}
+  .screenshot .ph-icon{width:40px;height:40px;margin:0 auto 8px;opacity:.3}
+  .screenshot .ph-text{font-size:13px;color:var(--text-3);font-weight:500}
+  .screenshot .ph-sub{font-size:11px;color:var(--text-3);opacity:.6;margin-top:2px}
+
+  /* Input */
+  .field{margin:16px 0}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .field label .optional{color:var(--text-3);font-weight:400;font-size:12px}
+  .field input{width:100%;height:46px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-family:var(--font);background:var(--bg);transition:border-color .2s;color:var(--text)}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .field input.error{border-color:var(--danger);background:var(--danger-soft)}
+  .field .hint{font-size:12px;color:var(--text-3);margin-top:4px}
+  .field .error-msg{font-size:12px;color:var(--danger);margin-top:4px;display:none}
+  .field input.error ~ .error-msg{display:block}
+
+  /* Code block */
+  .code-block{position:relative;background:#1e1e2e;border-radius:var(--radius-sm);padding:16px;margin:12px 0;overflow-x:auto}
+  .code-block code{font-family:"SF Mono",Consolas,"Courier New",monospace;font-size:12.5px;color:#cdd6f4;line-height:1.6;white-space:pre;display:block}
+  .code-block .copy-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);border:none;color:#cdd6f4;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--font);transition:background .2s}
+  .code-block .copy-btn:hover{background:rgba(255,255,255,.2)}
+  .code-block .copy-btn.copied{background:var(--accent);color:#fff}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:46px;padding:0 24px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .15s;text-decoration:none}
+  .btn:hover{text-decoration:none}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(6,199,85,.3)}
+  .btn-primary:hover{background:var(--accent-dark)}
+  .btn-primary:disabled{background:var(--border);color:var(--text-3);box-shadow:none;cursor:not-allowed}
+  .btn-secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+  .btn-secondary:hover{background:var(--bg)}
+  .btn-ghost{background:transparent;color:var(--text-2);padding:0 12px}
+  .btn-ghost:hover{color:var(--text)}
+  .btn-row{display:flex;gap:10px;margin-top:24px}
+  .btn-row .btn{flex:1}
+
+  /* Generate secret */
+  .secret-row{display:flex;gap:8px;align-items:flex-end}
+  .secret-row .field{flex:1;margin-bottom:0}
+  .secret-row .btn{height:46px;white-space:nowrap;flex-shrink:0;margin-top:0}
+
+  /* Tip box */
+  .tip{background:var(--accent-soft);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--accent-dark);margin:16px 0;line-height:1.6}
+  .tip strong{font-weight:600}
+  .warning{background:var(--danger-soft);color:var(--danger);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;margin:16px 0;line-height:1.6}
+
+  /* Summary table */
+  .summary{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+  .summary th{text-align:left;font-weight:600;padding:8px 12px;background:var(--bg);border-radius:6px;color:var(--text)}
+  .summary td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-2);word-break:break-all}
+  .summary td:first-child{font-family:"SF Mono",Consolas,monospace;font-size:12px;white-space:nowrap;color:var(--text)}
+  .summary .val{color:var(--accent-dark);font-weight:500}
+  .summary .empty{color:var(--text-3);font-style:italic}
+
+  /* Step hidden */
+  .step{display:none;animation:fadeUp .3s ease}
+  .step.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Deploy button */
+  .deploy-card{text-align:center;padding:36px 24px}
+  .deploy-card .icon{width:56px;height:56px;margin:0 auto 16px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .deploy-card .icon svg{width:28px;height:28px;color:var(--accent)}
+  .deploy-card h2{margin-bottom:8px}
+  .deploy-card p{margin-bottom:20px}
+  .deploy-card .btn{min-width:240px}
+
+  /* Checklist */
+  .checklist{list-style:none;padding:0;margin:12px 0}
+  .checklist li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .checklist li:last-child{border-bottom:none}
+  .checklist .check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .checklist .check.done{background:var(--accent);border-color:var(--accent)}
+  .checklist .check.done::after{content:"";display:block;width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+  .checklist .item-label{flex:1;color:var(--text-2)}
+  .checklist .check.done + .item-label{color:var(--text);font-weight:500}
+
+  /* Responsive */
+  @media(max-width:480px){
+    .wrapper{padding:16px 16px 60px}
+    .card{padding:22px 18px}
+    .btn-row{flex-direction:column}
+    .secret-row{flex-direction:column}
+    .secret-row .btn{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">SETUP GUIDE</div>
+    <h1>LINE LIFF 發票辨識</h1>
+    <p>跟著步驟走，幾分鐘就能部署完成</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="step-label">
+    <span id="stepLabel">步驟 1 / 5</span>
+    <span id="stepTitle"></span>
+  </div>
+  <div class="progress" id="progressBar">
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Step 0: Welcome -->
+  <!-- ============================================================ -->
+  <div class="step active" data-step="0" data-title="開始">
+    <div class="card">
+      <h2>歡迎！</h2>
+      <p>這個引導會帶你完成所有設定，讓你擁有一個透過 LINE 上傳發票、自動辨識並存入 Google Sheets 的系統。</p>
+
+      <h3>你需要準備</h3>
+      <ul class="checklist" id="prepChecklist">
+        <li>
+          <div class="check done"></div>
+          <span class="item-label">一個 Google 帳號（Gmail 即可）</span>
+        </li>
+        <li>
+          <div class="check" id="checkGemini"></div>
+          <span class="item-label">Gemini API Key（下一步教你取得）</span>
+        </li>
+        <li>
+          <div class="check" id="checkSheet"></div>
+          <span class="item-label">Google Sheets 試算表 + Apps Script</span>
+        </li>
+        <li>
+          <div class="check" id="checkLiff"></div>
+          <span class="item-label">LINE Developers 帳號 <span style="color:var(--text-3)">(選填)</span></span>
+        </li>
+        <li>
+          <div class="check" id="checkVercel"></div>
+          <span class="item-label">Vercel 或 GitHub 帳號（免費，用來部署）</span>
+        </li>
+      </ul>
+
+      <div class="tip">
+        <strong>預估時間：</strong>約 10～15 分鐘。不需要寫任何程式碼！
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goTo(1)">開始設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Step 1: Gemini API Key -->
+  <!-- ============================================================ -->
+  <div class="step" data-step="1" data-title="Gemini API Key">
+    <div class="card">
+      <h2>Step 1：取得 Gemini API Key</h2>
+      <p>Gemini 是 Google 的 AI 服務，用來辨識發票照片上的文字。</p>
+
+      <ol>
+        <li>前往 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>，用 Google 帳號登入</li>
+        <li>點擊「<strong>Create API Key</strong>」按鈕</li>
+        <li>選擇任一 Google Cloud 專案（沒有的話會自動建立）</li>
+        <li>複製產生的 API Key</li>
+      </ol>
+
+      <div class="screenshot">
+        <img src="images/step1-gemini.png" alt="Google AI Studio — Create API Key 按鈕位置">
+      </div>
+
+      <div class="field">
+        <label>Gemini API Key</label>
+        <input type="text" id="geminiKey" placeholder="AIza..." oninput="validateGemini()">
+        <div class="hint">以 AIza 開頭的字串</div>
+        <div class="error-msg">格式不正確，API Key 通常以 AIza 開頭</div>
+      </div>
+
+      <div class="tip">
+        <strong>免費額度：</strong>Gemini API 提供免費使用額度，一般使用量不會產生費用。
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(0)">上一步</button>
+        <button class="btn btn-primary" id="btn1" onclick="goTo(2)">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Step 2: Google Sheets + Apps Script -->
+  <!-- ============================================================ -->
+  <div class="step" data-step="2" data-title="Google Sheets">
+    <div class="card">
+      <h2>Step 2：設定 Google Sheets</h2>
+      <p>發票辨識結果會存入你自己的 Google Sheets 試算表。我們需要透過 Apps Script 來接收資料。</p>
+
+      <h3>2-1. 建立試算表</h3>
+      <ol>
+        <li>前往 <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> 建立新的試算表</li>
+        <li>你可以幫它取個名字，例如「發票登錄」</li>
+      </ol>
+
+      <div class="screenshot">
+        <img src="images/step2-1-new-sheet.png" alt="新建 Google Sheets 試算表">
+      </div>
+
+      <h3>2-2. 開啟 Apps Script</h3>
+      <ol>
+        <li>在試算表上方選單，點擊 <strong>擴充功能</strong> → <strong>Apps Script</strong></li>
+        <li>會開啟一個新的程式碼編輯器</li>
+      </ol>
+
+      <div class="screenshot">
+        <img src="images/step2-2-extensions-menu.png" alt="擴充功能 → Apps Script 選單位置">
+      </div>
+
+      <h3>2-3. 設定共用密鑰</h3>
+      <p>這是用來驗證身份的隨機字串，防止陌生人寫入你的試算表。</p>
+
+      <div class="secret-row">
+        <div class="field">
+          <label>共用密鑰 (Secret)</label>
+          <input type="text" id="appSecret" placeholder="點右邊自動產生..." oninput="updateCodePreview()">
+        </div>
+        <button class="btn btn-secondary" onclick="generateSecret()" style="margin-bottom:0">自動產生</button>
+      </div>
+      <div class="hint" style="font-size:12px;color:var(--text-3);margin-top:6px">產生後，下方程式碼會自動帶入這個密鑰</div>
+
+      <h3>2-4. 貼上程式碼</h3>
+      <ol>
+        <li><strong>全選</strong>編輯器中的預設程式碼（Ctrl+A / Cmd+A），<strong>刪除</strong>它</li>
+        <li>點擊下方「複製程式碼」按鈕</li>
+        <li>在編輯器中<strong>貼上</strong>（Ctrl+V / Cmd+V）</li>
+      </ol>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyAppsScript(this)">複製程式碼</button>
+        <code id="appsScriptCode"></code>
+      </div>
+
+      <div class="tip">
+        程式碼第 1 行的 <code>SECRET</code> 已自動替換為上方產生的密鑰，直接複製貼上即可。
+      </div>
+
+      <h3>2-5. 部署 Apps Script</h3>
+      <ol>
+        <li>點擊編輯器上方的 <strong>部署</strong> → <strong>新增部署</strong></li>
+        <li>左邊齒輪圖示，選擇類型 → <strong>網頁應用程式</strong></li>
+        <li>執行身分：<strong>我</strong></li>
+        <li>存取權限：<strong>所有人</strong></li>
+        <li>點擊 <strong>部署</strong></li>
+        <li>首次會要求授權，點擊「<strong>授予存取權</strong>」</li>
+        <li>複製產生的 <strong>Web App URL</strong></li>
+      </ol>
+
+      <div class="screenshot">
+        <img src="images/step2-5-deploy-settings.png" alt="Apps Script 部署設定對話框">
+      </div>
+
+      <div class="screenshot">
+        <img src="images/step2-5-deploy-complete.png" alt="部署完成 — 複製 Web App URL">
+      </div>
+
+      <div class="field">
+        <label>Google Apps Script Web App URL</label>
+        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." oninput="validateScriptUrl()">
+        <div class="hint">以 https://script.google.com/ 開頭的網址</div>
+        <div class="error-msg">網址格式不正確</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(1)">上一步</button>
+        <button class="btn btn-primary" id="btn2" onclick="goTo(3)">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Step 3: LINE LIFF (optional) -->
+  <!-- ============================================================ -->
+  <div class="step" data-step="3" data-title="LINE LIFF (選填)">
+    <div class="card">
+      <h2>Step 3：設定 LINE LIFF <span style="color:var(--text-3);font-size:14px;font-weight:400">(選填)</span></h2>
+      <p>設定 LIFF 後，可以辨識是哪位 LINE 使用者上傳的發票。不設定也能正常使用。</p>
+
+      <div class="tip">
+        <strong>可以跳過！</strong>如果你只是想先試用，可以直接跳到下一步。之後隨時可以回來補設定。
+      </div>
+
+      <ol>
+        <li>前往 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers Console</a>，登入 LINE 帳號</li>
+        <li>建立一個 <strong>Provider</strong>（輸入任意名稱）</li>
+        <li>在 Provider 下建立一個 <strong>LINE Login</strong> channel</li>
+        <li>進入 channel → <strong>LIFF</strong> 頁籤 → 點擊 <strong>Add</strong></li>
+        <li>設定：
+          <ul>
+            <li><strong>Size</strong>：<code>Full</code></li>
+            <li><strong>Endpoint URL</strong>：先填 <code>https://example.com</code>（部署後再更新）</li>
+            <li><strong>Scope</strong>：勾選 <code>profile</code></li>
+          </ul>
+        </li>
+        <li>建立完成後，複製 <strong>LIFF ID</strong></li>
+      </ol>
+
+      <div class="screenshot">
+        <img src="images/step3-line-liff.png" alt="LINE Developers Console — LIFF 設定頁面">
+      </div>
+
+      <div class="screenshot">
+        <img src="images/step3-liff-id.png" alt="LIFF ID 複製位置">
+      </div>
+
+      <div class="field">
+        <label>LIFF ID <span class="optional">（選填）</span></label>
+        <input type="text" id="liffId" placeholder="1234567890-abcdefgh" oninput="validateLiff()">
+        <div class="hint">數字-英數字混合的字串</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(2)">上一步</button>
+        <button class="btn btn-ghost" onclick="goTo(4)" id="skipLiff">跳過此步驟</button>
+        <button class="btn btn-primary" onclick="goTo(4)">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Step 4: Review & Deploy -->
+  <!-- ============================================================ -->
+  <div class="step" data-step="4" data-title="部署">
+    <div class="card deploy-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h2>準備部署！</h2>
+      <p>確認以下設定值，然後一鍵部署到 Vercel。</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">自訂網站外觀 <span style="color:var(--text-3);font-size:13px;font-weight:400">(選填)</span></h3>
+      <p style="font-size:14px;color:var(--text-2)">不填則使用預設值。</p>
+
+      <div class="field">
+        <label>SITE_TITLE <span class="optional">（網站標題）</span></label>
+        <input type="text" id="siteTitle" placeholder="發票登錄" oninput="updateSummary();saveState()">
+        <div class="hint">預設：發票登錄</div>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">設定值總覽</h3>
+      <table class="summary">
+        <tr>
+          <td>GEMINI_API_KEY</td>
+          <td id="sumGemini" class="val"></td>
+        </tr>
+        <tr>
+          <td>GOOGLE_APPS_SCRIPT_URL</td>
+          <td id="sumScriptUrl" class="val"></td>
+        </tr>
+        <tr>
+          <td>GOOGLE_APPS_SCRIPT_SECRET</td>
+          <td id="sumSecret" class="val"></td>
+        </tr>
+        <tr>
+          <td>NEXT_PUBLIC_LIFF_ID</td>
+          <td id="sumLiffId" class="val"></td>
+        </tr>
+        <tr>
+          <td>SITE_TITLE</td>
+          <td id="sumSiteTitle" class="val"></td>
+        </tr>
+      </table>
+
+      <div class="tip">
+        <strong>安全提示：</strong>你的 API Key 和密鑰只會存在你的瀏覽器中，不會傳送到任何伺服器。點擊部署後，這些值會直接傳給 Vercel 作為環境變數。
+      </div>
+
+      <div id="deployError" class="warning" style="display:none">
+        請至少填寫 <strong>Gemini API Key</strong>、<strong>Apps Script URL</strong> 和 <strong>Secret</strong> 才能部署。
+      </div>
+
+      <div style="text-align:center;margin-top:20px">
+        <a class="btn btn-primary" id="deployBtn" href="#" target="_blank" rel="noopener" onclick="return handleDeploy()">
+          <svg width="18" height="18" viewBox="0 0 76 65" fill="currentColor"><path d="M37.532 0L75.065 64.964H0L37.532 0z"/></svg>
+          部署到 Vercel
+        </a>
+      </div>
+
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn btn-ghost" onclick="showEnvBlock()" style="font-size:13px">或複製 .env.local 自行部署</button>
+      </div>
+
+      <div id="envBlock" style="display:none">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyEnv(this)">複製</button>
+          <code id="envCode"></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">部署後別忘了</h3>
+      <ul class="checklist">
+        <li>
+          <div class="check"></div>
+          <span class="item-label">如果有設定 LINE LIFF，回到 LINE Developers Console 更新 <strong>Endpoint URL</strong> 為你的 Vercel 網址</span>
+        </li>
+        <li>
+          <div class="check"></div>
+          <span class="item-label">開啟你的 Vercel 網址測試上傳發票</span>
+        </li>
+        <li>
+          <div class="check"></div>
+          <span class="item-label">檢查 Google Sheets 是否有收到資料</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo(3)">上一步</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===========================================
+// Apps Script source code (embedded)
+// ===========================================
+const APPS_SCRIPT_TEMPLATE = `var SECRET = "__SECRET__";
+var SHEET_NAME = "Invoices";
+var KEYS = [
+  "submitted_at",
+  "line_user_id",
+  "line_display_name",
+  "line_picture",
+  "invoice_date",
+  "vendor_name",
+  "invoice_number",
+  "subtotal",
+  "tax_amount",
+  "total_amount",
+  "currency",
+  "payment_method",
+  "line_items_json",
+  "raw_text",
+  "confidence_note",
+];
+var HEADERS = [
+  "提交時間",
+  "LINE 用戶 ID",
+  "用戶名稱",
+  "大頭照",
+  "發票日期",
+  "商家名稱",
+  "發票號碼",
+  "小計",
+  "稅額",
+  "總金額",
+  "幣別",
+  "付款方式",
+  "品項明細",
+  "原始文字",
+  "備註",
+];
+
+function sanitizeCell(value) {
+  if (typeof value === "string" && /^[=+\\-@|]/.test(value)) {
+    return "'" + value;
+  }
+  return value;
+}
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+
+    if (data.secret !== SECRET) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ success: false, error: "Unauthorized" })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var sheet =
+      SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEET_NAME);
+      sheet.appendRow(HEADERS);
+    }
+
+    var row = KEYS.map(function (key) {
+      if (key === "line_picture") {
+        var picUrl = data["line_picture_url"] || "";
+        return picUrl ? '=IMAGE("' + picUrl + '")' : "";
+      }
+      var val = data[key] !== undefined ? data[key] : "";
+      return sanitizeCell(val);
+    });
+
+    sheet.appendRow(row);
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: true })
+    ).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: false, error: err.message })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+// ===========================================
+// State
+// ===========================================
+let currentStep = 0;
+const totalSteps = 5;
+
+// ===========================================
+// Navigation
+// ===========================================
+function goTo(step) {
+  // Save to sessionStorage
+  saveState();
+
+  currentStep = step;
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
+
+  // Update progress
+  const dots = document.querySelectorAll('.progress-dot');
+  dots.forEach((dot, i) => {
+    dot.className = 'progress-dot';
+    if (i < step) dot.classList.add('done');
+    if (i === step) dot.classList.add('active');
+  });
+
+  const stepEl = document.querySelector(`.step[data-step="${step}"]`);
+  document.getElementById('stepLabel').textContent = `步驟 ${step + 1} / ${totalSteps}`;
+  document.getElementById('stepTitle').textContent = stepEl.dataset.title || '';
+
+  // Update checklist on welcome page
+  updateChecklist();
+
+  // Update summary on deploy page
+  if (step === 4) updateSummary();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===========================================
+// Validation
+// ===========================================
+function validateGemini() {
+  const input = document.getElementById('geminiKey');
+  const val = input.value.trim();
+  if (val && !val.startsWith('AIza')) {
+    input.classList.add('error');
+  } else {
+    input.classList.remove('error');
+  }
+  updateChecklist();
+}
+
+function validateScriptUrl() {
+  const input = document.getElementById('scriptUrl');
+  const val = input.value.trim();
+  if (val && !val.startsWith('https://script.google.com/')) {
+    input.classList.add('error');
+  } else {
+    input.classList.remove('error');
+  }
+  updateChecklist();
+}
+
+function validateLiff() {
+  updateChecklist();
+}
+
+// ===========================================
+// Secret generator
+// ===========================================
+function generateSecret() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const segments = [];
+  for (let s = 0; s < 3; s++) {
+    let seg = '';
+    for (let i = 0; i < 8; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+    segments.push(seg);
+  }
+  document.getElementById('appSecret').value = segments.join('-');
+  updateCodePreview();
+  updateChecklist();
+}
+
+// ===========================================
+// Code preview
+// ===========================================
+function updateCodePreview() {
+  const secret = document.getElementById('appSecret').value.trim() || '請替換為你自己的隨機字串';
+  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_TEMPLATE.replace('__SECRET__', secret);
+}
+
+function copyAppsScript(btn) {
+  const code = document.getElementById('appsScriptCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已複製！';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '複製程式碼'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ===========================================
+// Checklist update
+// ===========================================
+function updateChecklist() {
+  const gemini = document.getElementById('geminiKey').value.trim();
+  const url = document.getElementById('scriptUrl').value.trim();
+  const secret = document.getElementById('appSecret').value.trim();
+  const liff = document.getElementById('liffId').value.trim();
+
+  setCheck('checkGemini', !!gemini);
+  setCheck('checkSheet', !!(url && secret));
+  setCheck('checkLiff', !!liff);
+  setCheck('checkVercel', true);
+}
+
+function setCheck(id, done) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (done) el.classList.add('done');
+  else el.classList.remove('done');
+}
+
+// ===========================================
+// Summary & Deploy
+// ===========================================
+function maskValue(val) {
+  if (!val) return '';
+  if (val.length <= 8) return val;
+  return val.slice(0, 4) + '...' + val.slice(-4);
+}
+
+function updateSummary() {
+  const gemini = document.getElementById('geminiKey').value.trim();
+  const url = document.getElementById('scriptUrl').value.trim();
+  const secret = document.getElementById('appSecret').value.trim();
+  const liff = document.getElementById('liffId').value.trim();
+  const siteTitle = document.getElementById('siteTitle').value.trim();
+
+  setSummaryCell('sumGemini', gemini, true);
+  setSummaryCell('sumScriptUrl', url, false);
+  setSummaryCell('sumSecret', secret, true);
+  setSummaryCell('sumLiffId', liff || '（未設定 — 開發模式）', false, !liff);
+  setSummaryCell('sumSiteTitle', siteTitle || '（預設：發票登錄）', false, !siteTitle);
+
+  // Build deploy URL
+  const repoUrl = 'https://github.com/supra126/line-liff-invoai-sheet';
+  const params = new URLSearchParams({
+    'repository-url': repoUrl,
+    'project-name': 'line-liff-invoai-sheet',
+    'env': 'GEMINI_API_KEY,GOOGLE_APPS_SCRIPT_URL,GOOGLE_APPS_SCRIPT_SECRET',
+    'envDescription': 'Required API keys - see setup guide',
+    'envLink': repoUrl + '#設定教學',
+  });
+
+  // Pre-fill env values
+  if (gemini) params.set('envValues[GEMINI_API_KEY]', gemini);
+  if (url) params.set('envValues[GOOGLE_APPS_SCRIPT_URL]', url);
+  if (secret) params.set('envValues[GOOGLE_APPS_SCRIPT_SECRET]', secret);
+  if (liff) params.set('envValues[NEXT_PUBLIC_LIFF_ID]', liff);
+  if (siteTitle) params.set('envValues[SITE_TITLE]', siteTitle);
+
+  document.getElementById('deployBtn').href = 'https://vercel.com/new/clone?' + params.toString();
+
+  // Update env block
+  let envLines = [
+    `NEXT_PUBLIC_LIFF_ID=${liff}`,
+    `GEMINI_API_KEY=${gemini}`,
+    `GEMINI_MODEL=gemini-2.5-flash`,
+    `GOOGLE_APPS_SCRIPT_URL=${url}`,
+    `GOOGLE_APPS_SCRIPT_SECRET=${secret}`,
+  ];
+  if (siteTitle) envLines.push(`SITE_TITLE=${siteTitle}`);
+  document.getElementById('envCode').textContent = envLines.join('\n');
+}
+
+function setSummaryCell(id, value, mask, isEmpty) {
+  const td = document.getElementById(id);
+  if (isEmpty) {
+    td.textContent = value;
+    td.className = 'empty';
+  } else if (value) {
+    td.textContent = mask ? maskValue(value) : value;
+    td.className = 'val';
+  } else {
+    td.textContent = '（未填寫）';
+    td.className = 'empty';
+  }
+}
+
+function handleDeploy() {
+  const gemini = document.getElementById('geminiKey').value.trim();
+  const url = document.getElementById('scriptUrl').value.trim();
+  const secret = document.getElementById('appSecret').value.trim();
+  const errEl = document.getElementById('deployError');
+
+  if (!gemini || !url || !secret) {
+    errEl.style.display = 'block';
+    return false;
+  }
+  errEl.style.display = 'none';
+  return true;
+}
+
+function showEnvBlock() {
+  updateSummary();
+  document.getElementById('envBlock').style.display = 'block';
+}
+
+function copyEnv(btn) {
+  const code = document.getElementById('envCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已複製！';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ===========================================
+// Session persistence
+// ===========================================
+function saveState() {
+  const data = {
+    geminiKey: document.getElementById('geminiKey').value,
+    scriptUrl: document.getElementById('scriptUrl').value,
+    appSecret: document.getElementById('appSecret').value,
+    liffId: document.getElementById('liffId').value,
+    siteTitle: document.getElementById('siteTitle').value,
+    step: currentStep,
+  };
+  try { sessionStorage.setItem('setupGuide', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = sessionStorage.getItem('setupGuide');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.geminiKey) document.getElementById('geminiKey').value = data.geminiKey;
+    if (data.scriptUrl) document.getElementById('scriptUrl').value = data.scriptUrl;
+    if (data.appSecret) document.getElementById('appSecret').value = data.appSecret;
+    if (data.liffId) document.getElementById('liffId').value = data.liffId;
+    if (data.siteTitle) document.getElementById('siteTitle').value = data.siteTitle;
+    updateCodePreview();
+    updateChecklist();
+    if (data.step > 0) goTo(data.step);
+  } catch(e) {}
+}
+
+// ===========================================
+// Init
+// ===========================================
+updateCodePreview();
+loadState();
+</script>
+</body>
+</html>

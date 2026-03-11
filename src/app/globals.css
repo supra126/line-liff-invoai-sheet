@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f2f4f7;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-hover: #fafafa;
+  --border: #e2e5ea;
+  --muted: #8b8fa3;
+  --muted-light: #b4b8c8;
+  --input-bg: #f8f9fb;
+  --input-border: #dde0e7;
+  --input-focus: #06c755;
+  --toggle-bg: #e8ebf0;
+  --toggle-active: #ffffff;
+  --accent: #06c755;
+  --accent-soft: #e8f9ef;
+  --accent-glow: rgba(6, 199, 85, 0.15);
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 0 3px rgba(6, 199, 85, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0c0c14;
+    --foreground: #e4e4ed;
+    --card: #16161f;
+    --card-hover: #1c1c28;
+    --border: #25253a;
+    --muted: #6b6b85;
+    --muted-light: #4a4a62;
+    --input-bg: #12121b;
+    --input-border: #2a2a40;
+    --input-focus: #06c755;
+    --toggle-bg: #12121b;
+    --toggle-active: #1e1e2d;
+    --accent: #06c755;
+    --accent-soft: rgba(6, 199, 85, 0.1);
+    --accent-glow: rgba(6, 199, 85, 0.2);
+    --danger: #f87171;
+    --danger-soft: rgba(248, 113, 113, 0.1);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-glow: 0 0 0 3px rgba(6, 199, 85, 0.2);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-light: var(--muted-light);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-focus: var(--input-focus);
+  --color-toggle-bg: var(--toggle-bg);
+  --color-toggle-active: var(--toggle-active);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), var(--font-noto-sans-tc), -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions for theme changes */
+*, *::before, *::after {
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Focus ring */
+input:focus, select:focus, textarea:focus {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Normalize iOS date input and select height */
+input[type="date"],
+select {
+  min-height: 48px;
+  line-height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* Remove spinner from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted-light);
+  border-radius: 2px;
+}
+
+/* Pulse animation for processing */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float-up {
+  animation: float-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
