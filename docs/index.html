@@ -347,7 +347,7 @@
           <ul>
             <li><strong>Size</strong>：<code>Full</code></li>
             <li><strong>Endpoint URL</strong>：先填 <code>https://example.com</code>（部署後再更新）</li>
-            <li><strong>Scope</strong>：勾選 <code>profile</code></li>
+            <li><strong>Scope</strong>：勾選 <code>profile</code> 和 <code>chat_message.write</code></li>
           </ul>
         </li>
         <li>建立完成後，複製 <strong>LIFF ID</strong></li>
@@ -365,6 +365,12 @@
         <label>LIFF ID <span class="optional">（選填）</span></label>
         <input type="text" id="liffId" placeholder="1234567890-abcdefgh" oninput="validateLiff()">
         <div class="hint">數字-英數字混合的字串</div>
+      </div>
+
+      <div class="field">
+        <label>儲存成功後發送的訊息 <span class="optional">（選填）</span></label>
+        <input type="text" id="liffSuccessMsg" placeholder="例：發票已登錄完成！" oninput="saveState()">
+        <div class="hint">設定後，發票成功寫入 Google Sheets 時會在 LINE 聊天室中自動發送此訊息。需勾選上方 <code>chat_message.write</code> scope。留空則不發送。<br>支援變數：<code>{user_name}</code> <code>{user_id}</code> <code>{invoice_date}</code> <code>{vendor_name}</code> <code>{invoice_number}</code> <code>{total_amount}</code> <code>{currency}</code> <code>{source}</code></div>
       </div>
 
       <div class="btn-row">
@@ -417,6 +423,10 @@
         <tr>
           <td>NEXT_PUBLIC_LIFF_ID</td>
           <td id="sumLiffId" class="val"></td>
+        </tr>
+        <tr>
+          <td>NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE</td>
+          <td id="sumLiffMsg" class="val"></td>
         </tr>
         <tr>
           <td>SITE_TITLE</td>
@@ -698,12 +708,14 @@ function updateSummary() {
   const url = document.getElementById('scriptUrl').value.trim();
   const secret = document.getElementById('appSecret').value.trim();
   const liff = document.getElementById('liffId').value.trim();
+  const liffMsg = document.getElementById('liffSuccessMsg').value.trim();
   const siteTitle = document.getElementById('siteTitle').value.trim();
 
   setSummaryCell('sumGemini', gemini, true);
   setSummaryCell('sumScriptUrl', url, false);
   setSummaryCell('sumSecret', secret, true);
   setSummaryCell('sumLiffId', liff || '（未設定 — 開發模式）', false, !liff);
+  setSummaryCell('sumLiffMsg', liffMsg || '（未設定 — 不發送訊息）', false, !liffMsg);
   setSummaryCell('sumSiteTitle', siteTitle || '（預設：發票登錄）', false, !siteTitle);
 
   // Build deploy URL
@@ -721,6 +733,7 @@ function updateSummary() {
   if (url) params.set('envValues[GOOGLE_APPS_SCRIPT_URL]', url);
   if (secret) params.set('envValues[GOOGLE_APPS_SCRIPT_SECRET]', secret);
   if (liff) params.set('envValues[NEXT_PUBLIC_LIFF_ID]', liff);
+  if (liffMsg) params.set('envValues[NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE]', liffMsg);
   if (siteTitle) params.set('envValues[SITE_TITLE]', siteTitle);
 
   document.getElementById('deployBtn').href = 'https://vercel.com/new/clone?' + params.toString();
@@ -728,6 +741,7 @@ function updateSummary() {
   // Update env block
   let envLines = [
     `NEXT_PUBLIC_LIFF_ID=${liff}`,
+    `NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE=${liffMsg}`,
     `GEMINI_API_KEY=${gemini}`,
     `GEMINI_MODEL=gemini-2.5-flash`,
     `GOOGLE_APPS_SCRIPT_URL=${url}`,
@@ -788,6 +802,7 @@ function saveState() {
     scriptUrl: document.getElementById('scriptUrl').value,
     appSecret: document.getElementById('appSecret').value,
     liffId: document.getElementById('liffId').value,
+    liffSuccessMsg: document.getElementById('liffSuccessMsg').value,
     siteTitle: document.getElementById('siteTitle').value,
     step: currentStep,
   };
@@ -803,6 +818,7 @@ function loadState() {
     if (data.scriptUrl) document.getElementById('scriptUrl').value = data.scriptUrl;
     if (data.appSecret) document.getElementById('appSecret').value = data.appSecret;
     if (data.liffId) document.getElementById('liffId').value = data.liffId;
+    if (data.liffSuccessMsg) document.getElementById('liffSuccessMsg').value = data.liffSuccessMsg;
     if (data.siteTitle) document.getElementById('siteTitle').value = data.siteTitle;
     updateCodePreview();
     updateChecklist();

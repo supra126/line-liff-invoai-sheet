@@ -51,7 +51,7 @@
 3. 在 LIFF 頁籤新增 LIFF App：
    - **Size**：`Full`
    - **Endpoint URL**：你的 Vercel 部署網址（如 `https://your-app.vercel.app`）
-   - **Scope**：勾選 `profile`
+   - **Scope**：勾選 `profile` 和 `chat_message.write`
 4. 複製 LIFF ID → 到 Vercel 的 Settings → Environment Variables 加入 `NEXT_PUBLIC_LIFF_ID`
 
 ## 手動安裝
@@ -102,6 +102,14 @@ npm start
 |------|------|--------|
 | `SITE_TITLE` | 網站標題 | 發票登錄 |
 | `GEMINI_MODEL` | Gemini 模型 | gemini-2.5-flash |
+| `NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE` | 儲存成功後自動發送到 LINE 聊天室的訊息，支援 `{變數}` | （未設定則不發送） |
+
+> **`NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE` 與 `chat_message.write` 的關係：**
+> 設定此環境變數後，發票儲存成功時會透過 `liff.sendMessages()` 在使用者當前的 LINE 聊天室中自動發送一則訊息。此功能需要在 LINE LIFF 設定中勾選 `chat_message.write` scope 才能運作。若未設定此環境變數，即使有勾選 `chat_message.write` 也不會發送任何訊息。
+>
+> 支援的變數：`{user_name}`（LINE 顯示名稱）、`{user_id}`（LINE UID）、`{invoice_date}`、`{vendor_name}`、`{invoice_number}`、`{total_amount}`、`{currency}`、`{source}`（辨識來源：QR Code / AI 辨識 / 手動輸入）
+>
+> 範例：`{user_name} 已登錄 {vendor_name} 的發票，金額 {total_amount} 元（{source}）`
 
 ## 技術棧
 

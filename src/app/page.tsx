@@ -98,13 +98,37 @@ export default function Home() {
   const [state, setState] = useState<AppState>("loading");
   const [mode, setMode] = useState<InputMode>("photo");
   const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [result, setResult] = useState<InvoiceResult | null>(null);
   const [error, setError] = useState("");
   const [form, setForm] = useState<ManualForm>(EMPTY_FORM);
+  const [sendMsgStatus, setSendMsgStatus] = useState<"idle" | "sent" | "failed">("idle");
   const fileRef = useRef<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  async function sendLiffMessage(data: InvoiceResult) {
+    const template = process.env.NEXT_PUBLIC_LIFF_SUCCESS_MESSAGE;
+    if (!template) return;
+    if (!process.env.NEXT_PUBLIC_LIFF_ID) return;
+    try {
+      if (!liff.isInClient()) return;
+      const text = template.replace(/\{(\w+)\}/g, (_, key) => {
+        if (key === "user_name") return userName;
+        if (key === "user_id") return userId;
+        if (key === "source") return SOURCE_LABELS[data.source || "gemini"] || "";
+        const val = data[key as keyof InvoiceResult];
+        if (val == null) return "";
+        return String(val);
+      });
+      await liff.sendMessages([{ type: "text", text }]);
+      setSendMsgStatus("sent");
+    } catch (e) {
+      console.warn("liff.sendMessages failed:", e);
+      setSendMsgStatus("failed");
+    }
+  }
 
   useEffect(() => {
     initLiff();
@@ -127,6 +151,7 @@ export default function Home() {
       }
       const profile = await liff.getProfile();
       setUserName(profile.displayName);
+      setUserId(profile.userId);
       setAccessToken(liff.getAccessToken() || "");
       setState("ready");
     } catch (e) {
@@ -179,6 +204,7 @@ export default function Home() {
       const data: InvoiceResult = await res.json();
       setResult(data);
       setState("result");
+      if (data.saved) sendLiffMessage(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "未知錯誤");
       setState("error");
@@ -242,6 +268,7 @@ export default function Home() {
       const data: InvoiceResult = await res.json();
       setResult(data);
       setState("result");
+      if (data.saved) sendLiffMessage(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "未知錯誤");
       setState("ready");
@@ -286,6 +313,7 @@ export default function Home() {
     setResult(null);
     setError("");
     setForm(EMPTY_FORM);
+    setSendMsgStatus("idle");
     setState("ready");
     if (inputRef.current) inputRef.current.value = "";
   }
