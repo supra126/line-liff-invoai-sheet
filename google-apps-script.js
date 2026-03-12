@@ -56,6 +56,22 @@ function sanitizeCell(value) {
   return value;
 }
 
+function formatLineItems(value) {
+  if (!value) return "";
+  try {
+    var items = typeof value === "string" ? JSON.parse(value) : value;
+    if (!Array.isArray(items)) return String(value);
+    return items
+      .map(function (item) {
+        var subtotal = item.qty * item.price;
+        return item.name + " x" + item.qty + " ($" + subtotal + ")";
+      })
+      .join("\n");
+  } catch (e) {
+    return String(value);
+  }
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
@@ -78,6 +94,9 @@ function doPost(e) {
       if (key === "line_picture") {
         var picUrl = data["line_picture_url"] || "";
         return picUrl ? '=IMAGE("' + picUrl + '")' : "";
+      }
+      if (key === "line_items_json") {
+        return formatLineItems(data[key]);
       }
       var val = data[key] !== undefined ? data[key] : "";
       return sanitizeCell(val);
